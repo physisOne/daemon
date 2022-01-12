@@ -72,8 +72,8 @@ public class MailService {
          }
       });
 
-      Mint mint = mintRepository.findById("25df8c87-6fca-4212-8172-07acd0a8dea3").get();
-      sendMail(mint);
+//      Mint mint = mintRepository.findById("25df8c87-6fca-4212-8172-07acd0a8dea3").get();
+//      sendMail(mint);
    }
 
    public void sendMail(Mint mint) {

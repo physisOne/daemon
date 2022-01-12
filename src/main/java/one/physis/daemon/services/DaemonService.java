@@ -10,6 +10,7 @@ import one.physis.daemon.data.repositories.ProjectRepository;
 import one.physis.daemon.services.dto.Balance;
 import org.slf4j.Logger;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,7 +56,7 @@ public abstract class DaemonService<T extends WalletService> {
       this.htrPrice = this.project.getPrice() * 100;
    }
 
-   //@Scheduled(fixedDelay = 10000)
+   @Scheduled(fixedDelay = 10000)
    public void checkAddresses() {
       getLogger().info("Loop started");
 
@@ -94,14 +95,14 @@ public abstract class DaemonService<T extends WalletService> {
       final List<Mint> htrToCustomerMints = new ArrayList<>();
       try {
          retryTemplate.execute(context -> {
-            returnDepositMints.addAll(this.mintRepository.getAllByStateAndProjectAndCustomerTransactionIsNull(MintState.NFT_SENT.ordinal(), this.project));
+            htrToCustomerMints.addAll(this.mintRepository.getAllByStateAndProjectAndCustomerTransactionIsNull(MintState.NFT_SENT.ordinal(), this.project));
             return null;
          });
       } catch(Exception ex) {
          getLogger().error("Failed to get mints for OUT OF NFT from database", ex);
       }
       for(Mint mint : htrToCustomerMints) {
-         sendDepositBack(mint);
+         sendHtrToCustomer(mint);
       }
       //END OF LOADING MINTS TO SEND DEPOSIT BACK
 

@@ -3,7 +3,7 @@ package one.physis.daemon.services.dto;
 public class Utxo {
    private String address;
    private int amount;
-   private String txId;
+   private String tx_id;
    private boolean locked;
    private int index;
 
@@ -23,12 +23,12 @@ public class Utxo {
       this.amount = amount;
    }
 
-   public String getTxId() {
-      return txId;
+   public String getTx_id() {
+      return tx_id;
    }
 
-   public void setTxId(String txId) {
-      this.txId = txId;
+   public void setTx_id(String tx_id) {
+      this.tx_id = tx_id;
    }
 
    public boolean isLocked() {

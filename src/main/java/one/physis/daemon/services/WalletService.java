@@ -314,7 +314,7 @@ public abstract class WalletService {
       transaction.setInputs(new ArrayList<>());
       for(Utxo utxo : utxos) {
          Input input = new Input();
-         input.setHash(utxo.getTxId());
+         input.setHash(utxo.getTx_id());
          input.setIndex(utxo.getIndex());
          transaction.getInputs().add(input);
       }
@@ -331,7 +331,7 @@ public abstract class WalletService {
       HttpEntity<String> request = new HttpEntity<>(json, headers);
 
       try {
-         ResponseEntity<SendResponse> response = restTemplate.postForEntity(this.sendUrl + "wallet/send-tx", request, SendResponse.class);
+         ResponseEntity<SendResponse> response = restTemplate.postForEntity(this.receiveUrl + "wallet/send-tx", request, SendResponse.class);
 
          if (response.getBody() != null && response.getBody().isSuccess()) {
             getLogger().info("Successfully sent htr to {}", address);

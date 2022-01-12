@@ -10,4 +10,5 @@ public interface MintRepository extends CrudRepository<Mint, String> {
 
    List<Mint> getAllByStateAndProject(int state, Project project);
 
+   List<Mint> getAllByStateAndProjectAndCustomerTransactionIsNull(int state, Project project);
 }

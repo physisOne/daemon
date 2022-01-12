@@ -19,13 +19,15 @@ public class DemoDaemonService extends DaemonService<DemoWalletService> {
 
    public DemoDaemonService(@Value("${projects." + project + ".name}") String name,
                             @Value("${projects." + project + ".id}") int projectId,
+                            @Value("${projects." + project + ".customerAddress}") String customerAddress,
+                            @Value("${projects." + project + ".percentage}") int percentage,
                             MintRepository mintRepository,
                             ProjectRepository projectRepository,
                             DemoWalletService walletService, //BEWARE OF THIS!
                             NftRepository nftRepository,
                             RetryTemplate retryTemplate,
                             MailService mailService) {
-      super(name, projectId, mintRepository, projectRepository, walletService, nftRepository, retryTemplate, mailService);
+      super(name, projectId, mintRepository, projectRepository, walletService, nftRepository, retryTemplate, mailService, customerAddress, percentage);
    }
 
    @Override

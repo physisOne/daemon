@@ -32,6 +32,8 @@ public class Mint {
 
    private String transaction;
 
+   private String customerTransaction;
+
    private String sendBackTransaction;
 
    private Date transactionDate;
@@ -163,5 +165,13 @@ public class Mint {
 
    public void setProject(Project project) {
       this.project = project;
+   }
+
+   public String getCustomerTransaction() {
+      return customerTransaction;
+   }
+
+   public void setCustomerTransaction(String customerTransaction) {
+      this.customerTransaction = customerTransaction;
    }
 }

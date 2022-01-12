@@ -1,5 +1,7 @@
 package one.physis.daemon.services.dto;
 
+import java.util.List;
+
 public class Balance {
 
    private int total_amount_available;
@@ -7,6 +9,8 @@ public class Balance {
    private int total_amount_locked;
    private int total_utxos_locked;
    private int available;
+
+   private List<Utxo> utxos;
 
    public int getTotal_amount_available() {
       return total_amount_available;
@@ -46,5 +50,13 @@ public class Balance {
 
    public void setAvailable(int available) {
       this.available = available;
+   }
+
+   public List<Utxo> getUtxos() {
+      return utxos;
+   }
+
+   public void setUtxos(List<Utxo> utxos) {
+      this.utxos = utxos;
    }
 }

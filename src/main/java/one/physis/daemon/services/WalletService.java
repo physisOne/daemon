@@ -14,6 +14,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -237,7 +238,7 @@ public abstract class WalletService {
       return null;
    }
 
-   public Integer checkBalance(String address) {
+   public Balance checkBalance(String address) {
       MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
       headers.add("X-Wallet-Id", RECEIVE_ID);
 
@@ -246,7 +247,7 @@ public abstract class WalletService {
                  Balance.class);
 
          if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return response.getBody().getTotal_amount_available();
+            return response.getBody();
          }
       } catch (Exception ex) {
          getLogger().error("Unable to get balance for address " + address, ex);
@@ -287,6 +288,53 @@ public abstract class WalletService {
 
          if (response.getBody() != null && response.getBody().isSuccess()) {
             getLogger().info("Successfully sent tokens to {}", address);
+            return response.getBody().getHash();
+         } else {
+            getLogger().error("Unable to send to address " + address);
+         }
+      } catch (Exception ex) {
+         getLogger().error("Unable to send to address " + address, ex);
+      }
+
+      return null;
+   }
+
+   public String sendHtrFromInputTransaction(String address, int amount, List<Utxo> utxos) {
+      getLogger().info("Sending Htr to " + address);
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("X-Wallet-Id", RECEIVE_ID);
+      headers.setContentType(MediaType.APPLICATION_JSON);
+
+      SendTransaction transaction = new SendTransaction();
+      Output output = new Output();
+      output.setAddress(address);
+      output.setValue(amount);
+      transaction.getOutputs().add(output);
+
+      transaction.setInputs(new ArrayList<>());
+      for(Utxo utxo : utxos) {
+         Input input = new Input();
+         input.setHash(utxo.getTxId());
+         input.setIndex(utxo.getIndex());
+         transaction.getInputs().add(input);
+      }
+
+      String json;
+      ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+      try {
+         json = ow.writeValueAsString(transaction);
+      } catch (JsonProcessingException ex) {
+         getLogger().error("Failed to create json for sendHtrFromInputTransaction to address " + address, ex);
+         return null;
+      }
+
+      HttpEntity<String> request = new HttpEntity<>(json, headers);
+
+      try {
+         ResponseEntity<SendResponse> response = restTemplate.postForEntity(this.sendUrl + "wallet/send-tx", request, SendResponse.class);
+
+         if (response.getBody() != null && response.getBody().isSuccess()) {
+            getLogger().info("Successfully sent htr to {}", address);
             return response.getBody().getHash();
          } else {
             getLogger().error("Unable to send to address " + address);

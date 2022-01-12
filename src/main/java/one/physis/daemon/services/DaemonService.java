@@ -7,6 +7,7 @@ import one.physis.daemon.data.entities.enums.MintState;
 import one.physis.daemon.data.repositories.MintRepository;
 import one.physis.daemon.data.repositories.NftRepository;
 import one.physis.daemon.data.repositories.ProjectRepository;
+import one.physis.daemon.services.dto.Balance;
 import org.slf4j.Logger;
 import org.springframework.retry.support.RetryTemplate;
 
@@ -28,6 +29,8 @@ public abstract class DaemonService<T extends WalletService> {
    private final int price;
    private final int htrPrice;
    private final Project project;
+   private final String customerAddress;
+   private final int percentage;
 
    protected abstract Logger getLogger();
 
@@ -38,13 +41,15 @@ public abstract class DaemonService<T extends WalletService> {
                         T walletService,
                         NftRepository nftRepository,
                         RetryTemplate retryTemplate,
-                        MailService mailService){
+                        MailService mailService, String customerAddress, int percentage){
       this.name = name;
       this.mintRepository = mintRepository;
       this.walletService = walletService;
       this.nftRepository = nftRepository;
       this.retryTemplate = retryTemplate;
       this.mailService = mailService;
+      this.customerAddress = customerAddress;
+      this.percentage = percentage;
       this.project = projectRepository.findById(projectId).get();
       this.price = this.project.getPrice();
       this.htrPrice = this.project.getPrice() * 100;
@@ -85,6 +90,21 @@ public abstract class DaemonService<T extends WalletService> {
       }
       //END OF LOADING MINTS TO SEND DEPOSIT BACK
 
+      //LOADING MINTS TO SEND HTR TO CUSTOMER
+      final List<Mint> htrToCustomerMints = new ArrayList<>();
+      try {
+         retryTemplate.execute(context -> {
+            returnDepositMints.addAll(this.mintRepository.getAllByStateAndProjectAndCustomerTransactionIsNull(MintState.NFT_SENT.ordinal(), this.project));
+            return null;
+         });
+      } catch(Exception ex) {
+         getLogger().error("Failed to get mints for OUT OF NFT from database", ex);
+      }
+      for(Mint mint : htrToCustomerMints) {
+         sendDepositBack(mint);
+      }
+      //END OF LOADING MINTS TO SEND DEPOSIT BACK
+
       List<Mint> notDeadMints = mints.stream().filter(mint -> !mint.isDead()).collect(Collectors.toList());
       getLogger().info("Processing mints " + notDeadMints.size());
 
@@ -112,16 +132,17 @@ public abstract class DaemonService<T extends WalletService> {
             getLogger().info("Processing mint " + mint.getId());
             if(mint.getState() == MintState.WAITING_FOR_DEPOSIT.ordinal()) {
                getLogger().info("Mint is in WAITING_FOR_DEPOSIT state");
-               Integer balance = walletService.checkBalance(mint.getDepositAddress().getAddress());
-               getLogger().info("Balance is " + balance + " and it should be " + (this.htrPrice * mint.getCount()));
-               if(balance != null && balance > 0) {
-                  mint.setBalance(balance);
+               Balance balance = walletService.checkBalance(mint.getDepositAddress().getAddress());
+               int totalBalance = balance == null ? 0 : balance.getTotal_amount_available();
+               getLogger().info("Balance is " + totalBalance + " and it should be " + (this.htrPrice * mint.getCount()));
+               if(totalBalance > 0) {
+                  mint.setBalance(totalBalance);
                   retryTemplate.execute(context -> {
                      mintRepository.save(mint);
                      return null;
                   });
                }
-               if (balance != null && balance >= this.htrPrice * mint.getCount()) {
+               if (totalBalance >= this.htrPrice * mint.getCount()) {
                   getLogger().info("Balance is good, initializing nfts");
                   if(initNfts(mint)) {
                      getLogger().info("Setting mint " + mint.getId() + " state to SENDING_NFT");
@@ -133,7 +154,7 @@ public abstract class DaemonService<T extends WalletService> {
                      send(mint);
                   }
                }
-               if (balance != null && balance == 0) {
+               if (totalBalance == 0) {
                   Date created = mint.getCreatedAt();
                   Date now = new Date();
 
@@ -212,11 +233,11 @@ public abstract class DaemonService<T extends WalletService> {
    private void send(Mint mint) throws Exception {
       getLogger().info("Sending NFT for mint " + mint.getId());
       List<String> tokens = new ArrayList<>();
-      for(Nft nft : mint.getNfts()) {
+      for (Nft nft : mint.getNfts()) {
          tokens.add(nft.getToken());
       }
       String transactionHash = walletService.sendTokens(mint.getUserAddress(), tokens);
-      if(transactionHash != null) {
+      if (transactionHash != null) {
          getLogger().info("Transaction hash " + transactionHash);
          mint.setTransaction(transactionHash);
          mint.setTransactionDate(new Date());
@@ -230,8 +251,31 @@ public abstract class DaemonService<T extends WalletService> {
          } catch (Exception ex) {
             getLogger().error("FATAL! Could not save mint " + mint.getId() + " to state NFT_SENT when NFTS were sent!", ex);
          }
-         if(mint.getEmail() != null) {
+
+         if (mint.getEmail() != null) {
             mailService.sendMail(mint);
+         }
+      }
+   }
+
+   private void sendHtrToCustomer(Mint mint) {
+      getLogger().info("Sending HTR to customer " + mint.getId());
+      Balance balance = walletService.checkBalance(mint.getDepositAddress().getAddress());
+      Integer totalBalance = balance == null ? 0 : balance.getTotal_amount_available();
+      if(totalBalance != 0 && balance.getUtxos().size() > 0) {
+         int htrForCustomer = totalBalance * percentage / 100;
+         getLogger().info("HTR for customer is " + htrForCustomer);
+         String hash = walletService.sendHtrFromInputTransaction(customerAddress, htrForCustomer, balance.getUtxos());
+         if (hash != null) {
+            mint.setCustomerTransaction(hash);
+            try {
+               retryTemplate.execute(context -> {
+                  mintRepository.save(mint);
+                  return null;
+               });
+            } catch (Exception ex) {
+               getLogger().error("FATAL! Could not save mint " + mint.getId() + " for customer transaction hash " + hash, ex);
+            }
          }
       }
    }

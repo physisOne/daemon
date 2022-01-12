@@ -13,4 +13,14 @@ public class SendTransaction {
    public void setOutputs(List<Output> outputs) {
       this.outputs = outputs;
    }
+
+   private List<Input> inputs;
+
+   public List<Input> getInputs() {
+      return inputs;
+   }
+
+   public void setInputs(List<Input> inputs) {
+      this.inputs = inputs;
+   }
 }

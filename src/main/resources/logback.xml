@@ -54,7 +54,7 @@
 
     <logger name="demo" level="DEBUG">
         <appender-ref ref="DEMO"/>
-        <appender-ref ref="CONSOLE"/>
+<!--        <appender-ref ref="CONSOLE"/>-->
     </logger>
 
     <logger name="grimverse" level="DEBUG">

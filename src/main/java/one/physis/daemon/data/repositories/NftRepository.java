@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface NftRepository extends CrudRepository<Nft, Integer> {
 
-   @Query(nativeQuery = true, value = "SELECT * FROM nft n WHERE n.taken = 0 and n.project_id = :project_id order by RAND() LIMIT :count")
+   @Query(nativeQuery = true, value = "SELECT * FROM mai_pad_nfts n WHERE n.taken = 0 and n.project_id = :project_id order by RAND() LIMIT :count")
    List<Nft> findNotTaken(@Param("count") int count, @Param("project_id") int projectId);
 }

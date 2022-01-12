@@ -32,6 +32,10 @@ public class Project {
 
    private String customCss;
 
+   private String slug;
+
+   private int nftsCount;
+
    public Integer getId() {
       return id;
    }
@@ -118,5 +122,21 @@ public class Project {
 
    public void setCustomCss(String customCss) {
       this.customCss = customCss;
+   }
+
+   public String getSlug() {
+      return slug;
+   }
+
+   public void setSlug(String slug) {
+      this.slug = slug;
+   }
+
+   public int getNftsCount() {
+      return nftsCount;
+   }
+
+   public void setNftsCount(int nftsCount) {
+      this.nftsCount = nftsCount;
    }
 }

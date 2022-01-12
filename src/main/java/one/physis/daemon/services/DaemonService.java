@@ -9,7 +9,6 @@ import one.physis.daemon.data.repositories.NftRepository;
 import one.physis.daemon.data.repositories.ProjectRepository;
 import org.slf4j.Logger;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,7 +50,7 @@ public abstract class DaemonService<T extends WalletService> {
       this.htrPrice = this.project.getPrice() * 100;
    }
 
-   @Scheduled(fixedDelay = 10000)
+   //@Scheduled(fixedDelay = 10000)
    public void checkAddresses() {
       getLogger().info("Loop started");
 

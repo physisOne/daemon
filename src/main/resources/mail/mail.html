@@ -1,0 +1,52 @@
+<html>
+<head>
+    <title>Physis One</title>
+
+    <link href='https://fonts.googleapis.com/css?family=Poppins:200,400' rel='stylesheet' type='text/css'>
+
+    <style>
+        #cards {
+            max-width: 925px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        .Title {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 25px;
+        }
+        .Card {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            width: 400px;
+            padding: 20px;
+            float: left;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #EEE
+        }
+        .Card img {
+            max-width: 300px;
+        }
+        .Card ul {
+            list-style: none;
+            padding-left: 0px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="Title">
+    <h1>Your {NAME} NFTs are ready!</h1>
+    <a href="{MINT_URL}">Your Mint</a>
+</div>
+
+<div id="cards">
+{TILES}
+</div>
+
+</body>
+
+</html>

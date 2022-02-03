@@ -44,6 +44,8 @@ public class Mint {
 
    private String email;
 
+   private String userTransaction;
+
    @ManyToOne
    private Project project;
 
@@ -173,5 +175,13 @@ public class Mint {
 
    public void setCustomerTransaction(String customerTransaction) {
       this.customerTransaction = customerTransaction;
+   }
+
+   public String getUserTransaction() {
+      return userTransaction;
+   }
+
+   public void setUserTransaction(String userTransaction) {
+      this.userTransaction = userTransaction;
    }
 }

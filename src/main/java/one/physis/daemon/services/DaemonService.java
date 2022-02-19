@@ -83,26 +83,28 @@ public abstract class DaemonService<T extends WalletService> {
             returnDepositMints.addAll(this.mintRepository.getAllByStateAndProject(MintState.OUT_OF_NFT.ordinal(), this.project));
             return null;
          });
-      } catch(Exception ex) {
+      } catch (Exception ex) {
          getLogger().error("Failed to get mints for OUT OF NFT from database", ex);
       }
-      for(Mint mint : returnDepositMints) {
+      for (Mint mint : returnDepositMints) {
          sendDepositBack(mint);
       }
       //END OF LOADING MINTS TO SEND DEPOSIT BACK
 
       //LOADING MINTS TO SEND HTR TO CUSTOMER
-      final List<Mint> htrToCustomerMints = new ArrayList<>();
-      try {
-         retryTemplate.execute(context -> {
-            htrToCustomerMints.addAll(this.mintRepository.getAllByStateAndProjectAndCustomerTransactionIsNull(MintState.NFT_SENT.ordinal(), this.project));
-            return null;
-         });
-      } catch(Exception ex) {
-         getLogger().error("Failed to get mints for OUT OF NFT from database", ex);
-      }
-      for(Mint mint : htrToCustomerMints) {
-         sendHtrToCustomer(mint);
+      if (this.project.getId() != 1){
+         final List<Mint> htrToCustomerMints = new ArrayList<>();
+         try {
+            retryTemplate.execute(context -> {
+               htrToCustomerMints.addAll(this.mintRepository.getAllByStateAndProjectAndCustomerTransactionIsNull(MintState.NFT_SENT.ordinal(), this.project));
+               return null;
+            });
+         } catch (Exception ex) {
+            getLogger().error("Failed to get mints for NFT SENT from database", ex);
+         }
+         for (Mint mint : htrToCustomerMints) {
+            sendHtrToCustomer(mint);
+         }
       }
       //END OF LOADING MINTS TO SEND DEPOSIT BACK
 

@@ -140,6 +140,13 @@ public abstract class DaemonService<T extends WalletService> {
                getLogger().info("Balance is " + totalBalance + " and it should be " + (this.htrPrice * mint.getCount()));
                if(totalBalance > 0) {
                   mint.setBalance(totalBalance);
+                  if(balance.getUtxos() != null && balance.getUtxos().size() > 0){
+                     String tx = balance.getUtxos().get(0).getTx_id();
+                     getLogger().info("Setting user transaction " + tx + " to mint " + mint.getId());
+                     mint.setUserTransaction(balance.getUtxos().get(0).getTx_id());
+                  } else {
+                     getLogger().warn("Unable to set user transaction for mint " + mint.getId());
+                  }
                   retryTemplate.execute(context -> {
                      mintRepository.save(mint);
                      return null;

@@ -118,7 +118,7 @@ public class MailService {
       String tiles = "";
       for(Nft nft : mint.getNfts()) {
          String nftTile = tile.replace(NAME, mint.getProject().getName() + " no. " + nft.getNumber());
-         String imgUrl = "https://www.physis.one/storage/app/media/" + mint.getProject().getSlug() + "/nfts/" + nft.getNumber() + ".jpeg";
+         String imgUrl = "https://www.physis.one/storage/app/media/" + mint.getProject().getSlug() + "/nfts/" + nft.getFilename();
          nftTile = nftTile.replace(IMAGE_SRC, imgUrl);
          nftTile = nftTile.replace(TOKEN, nft.getToken());
 

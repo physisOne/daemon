@@ -16,13 +16,12 @@ public class DemoWalletService extends WalletService {
    private final static String project = "demo";
 
    public DemoWalletService(@Value("${projects." + project + ".name}") String name,
-                            @Value("${projects." + project + ".sendPort}") int sendPort,
-                            @Value("${projects." + project + ".receivePort}") int receivePort,
+                            @Value("${projects." + project + ".port}") int port,
                             AddressRepository addressRepository,
                             MintRepository mintRepository,
                             NftRepository nftRepository,
                             RestTemplate restTemplate) {
-      super(name, addressRepository, mintRepository, nftRepository, restTemplate, sendPort, receivePort);
+      super(name, addressRepository, mintRepository, nftRepository, restTemplate, port);
    }
 
    @Override

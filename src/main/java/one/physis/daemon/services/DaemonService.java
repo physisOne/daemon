@@ -111,7 +111,7 @@ public abstract class DaemonService<T extends WalletService> {
       List<Mint> notDeadMints = mints.stream().filter(mint -> !mint.isDead()).collect(Collectors.toList());
       getLogger().info("Processing mints " + notDeadMints.size());
 
-      Integer receiveBalance = walletService.checkHtrBalance(false);
+      Integer receiveBalance = walletService.checkHtrBalance();
       if(receiveBalance != null) {
          getLogger().info("Receive balance is " + (receiveBalance / 100) + " HTR");
          if(receiveBalance / 100 > 500000) {
@@ -122,7 +122,7 @@ public abstract class DaemonService<T extends WalletService> {
       for (Mint mint : notDeadMints) {
          walletService.checkWallets();
 
-         receiveBalance = walletService.checkHtrBalance(false);
+         receiveBalance = walletService.checkHtrBalance();
          if(receiveBalance != null) {
             getLogger().info("Receive balance is " + (receiveBalance / 100) + " HTR");
             if(receiveBalance / 100 > 500000) {
@@ -293,7 +293,7 @@ public abstract class DaemonService<T extends WalletService> {
    private void sendDepositBack(Mint mint) {
       if(mint.getBalance() != null && mint.getBalance() > 0) {
          getLogger().info("Sending deposit back for mint " + mint.getId());
-         String transactionHash = walletService.sendHtrFromReceive(mint.getUserAddress(), mint.getBalance());
+         String transactionHash = walletService.sendHtr(mint.getUserAddress(), mint.getBalance());
          if (transactionHash != null) {
             getLogger().info("Transaction hash " + transactionHash);
             mint.setSendBackTransaction(transactionHash);

@@ -15,6 +15,20 @@
         </encoder>
     </appender>
 
+    <appender name="PIXTARS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <file>pixtars.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>pixtars.log-%d.gz</fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="GRIMVERSE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
@@ -22,6 +36,34 @@
         <file>grimverse.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>grimverse.log-%d.gz</fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="GARDENERS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <file>gardeners.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>gardeners.log-%d.gz</fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FOOTBALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <file>football.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>football.log-%d.gz</fileNamePattern>
             <maxHistory>10</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -54,12 +96,22 @@
 
     <logger name="demo" level="DEBUG">
         <appender-ref ref="DEMO"/>
-<!--        <appender-ref ref="CONSOLE"/>-->
     </logger>
 
     <logger name="grimverse" level="DEBUG">
         <appender-ref ref="GRIMVERSE"/>
-        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <logger name="gardeners" level="DEBUG">
+        <appender-ref ref="GARDENERS"/>
+    </logger>
+
+    <logger name="football" level="DEBUG">
+        <appender-ref ref="FOOTBALL"/>
+    </logger>
+
+    <logger name="pixtars" level="DEBUG">
+        <appender-ref ref="PIXTARS"/>
     </logger>
 
     <logger name="com.physis.daemon" level="debug">

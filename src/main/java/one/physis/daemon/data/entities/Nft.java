@@ -18,6 +18,10 @@ public class Nft {
 
    private boolean taken;
 
+   private boolean burned;
+
+   private String burnTransaction;
+
    @Lob
    private String attributes;
 
@@ -99,5 +103,21 @@ public class Nft {
 
    public void setFilename(String filename) {
       this.filename = filename;
+   }
+
+   public boolean isBurned() {
+      return burned;
+   }
+
+   public void setBurned(boolean burned) {
+      this.burned = burned;
+   }
+
+   public String getBurnTransaction() {
+      return burnTransaction;
+   }
+
+   public void setBurnTransaction(String burnTransaction) {
+      this.burnTransaction = burnTransaction;
    }
 }

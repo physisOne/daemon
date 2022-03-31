@@ -1,4 +1,4 @@
-package one.physis.daemon.services.projects.demo;
+package one.physis.daemon.services.projects.gardeners;
 
 
 import one.physis.daemon.data.repositories.MintRepository;
@@ -13,18 +13,18 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DemoDaemonService extends DaemonService<DemoWalletService> {
+public class GardenersDaemonService extends DaemonService<GardenersWalletService> {
 
-   private final static String project = "demo";
+   private final static String project = "gardeners";
 
-   public DemoDaemonService(@Value("${projects." + project + ".name}") String name,
+   public GardenersDaemonService(@Value("${projects." + project + ".name}") String name,
                             @Value("${projects." + project + ".id}") int projectId,
                             @Value("${projects." + project + ".customerAddress}") String customerAddress,
                             @Value("${projects." + project + ".percentage}") int percentage,
                             @Value("${projects." + project + ".enabled}") boolean enabled,
                             MintRepository mintRepository,
                             ProjectRepository projectRepository,
-                            DemoWalletService walletService, //BEWARE OF THIS!
+                            GardenersWalletService walletService, //BEWARE OF THIS!
                             NftRepository nftRepository,
                             RetryTemplate retryTemplate,
                             MailService mailService) {

@@ -32,6 +32,7 @@ public abstract class DaemonService<T extends WalletService> {
    private final Project project;
    private final String customerAddress;
    private final int percentage;
+   private final boolean enabled;
 
    protected abstract Logger getLogger();
 
@@ -42,7 +43,10 @@ public abstract class DaemonService<T extends WalletService> {
                         T walletService,
                         NftRepository nftRepository,
                         RetryTemplate retryTemplate,
-                        MailService mailService, String customerAddress, int percentage){
+                        MailService mailService,
+                        String customerAddress,
+                        int percentage,
+                        boolean enabled){
       this.name = name;
       this.mintRepository = mintRepository;
       this.walletService = walletService;
@@ -54,10 +58,14 @@ public abstract class DaemonService<T extends WalletService> {
       this.project = projectRepository.findById(projectId).get();
       this.price = this.project.getPrice();
       this.htrPrice = this.project.getPrice() * 100;
+      this.enabled = enabled;
    }
 
    @Scheduled(fixedDelay = 10000)
    public void checkAddresses() {
+      if(!this.enabled) {
+         return;
+      }
       getLogger().info("Loop started");
 
       //LOADING MINTS TO PROCESS
@@ -113,7 +121,7 @@ public abstract class DaemonService<T extends WalletService> {
 
       Integer receiveBalance = walletService.checkHtrBalance();
       if(receiveBalance != null) {
-         getLogger().info("Receive balance is " + (receiveBalance / 100) + " HTR");
+         getLogger().info("Receive balance is " + (receiveBalance / 100.0) + " HTR");
          if(receiveBalance / 100 > 500000) {
             getLogger().warn("WE SHOULD STOP SELLING!");
          }
@@ -124,7 +132,7 @@ public abstract class DaemonService<T extends WalletService> {
 
          receiveBalance = walletService.checkHtrBalance();
          if(receiveBalance != null) {
-            getLogger().info("Receive balance is " + (receiveBalance / 100) + " HTR");
+            getLogger().info("Receive balance is " + (receiveBalance / 100.0) + " HTR");
             if(receiveBalance / 100 > 500000) {
                getLogger().warn("WE SHOULD STOP SELLING!");
             }
@@ -308,6 +316,30 @@ public abstract class DaemonService<T extends WalletService> {
                getLogger().error("FATAL! Could not save mint " + mint.getId() + " to state HTR_SENT_BACK when HTR was sent back!", ex);
             }
          }
+      }
+   }
+
+   protected void sendMultipleNfts(String address, List<Integer> numbers, boolean checkTaken) {
+      Iterable<Nft> nfts = this.nftRepository.findByNumberInAndProjectId(numbers, this.project.getId());
+      List<Nft> nftList = new ArrayList<>();
+      for(Nft n : nfts) {
+         if(checkTaken) {
+            if (!n.isTaken()) {
+               nftList.add(n);
+            }
+         } else {
+            nftList.add(n);
+         }
+      }
+
+      List<String> tokens = nftList.stream().map(n -> n.getToken()).collect(Collectors.toList());
+      String hash = walletService.sendTokens(address, tokens);
+      if(hash != null) {
+         System.out.println(hash);
+         for(Nft n : nftList) {
+            n.setTaken(true);
+         }
+         nftRepository.saveAll(nftList);
       }
    }
 }
